@@ -1,0 +1,29 @@
+trigger:
+- main  # Or the branch you want to trigger the pipeline on
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use Ubuntu as the build agent
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'  # For .NET applications, change as needed
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '14.x'  # For Node.js applications, change as needed
+
+# Restore project dependencies (for .NET Core, Node.js, etc.)
+- script: |
+    npm install
+    npm run build  # For frontend apps, or `dotnet build` for .NET
+  displayName: 'Build Project'
+
+# Publish build artifacts
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/your-app-folder'  # Path to app folder
+    artifact: 'drop'
+    publishLocation: 'pipeline'
